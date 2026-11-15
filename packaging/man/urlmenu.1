@@ -1,0 +1,46 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH urlmenu 1  "urlmenu 0.1.0" 
+.SH NAME
+urlmenu \- Pick a browser for each link, through your launcher
+.SH SYNOPSIS
+\fBurlmenu\fR [\fB\-\-dry\-run\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIURL\fR] [\fIsubcommands\fR]
+.SH DESCRIPTION
+Pick a browser for each link, through your launcher
+.SH OPTIONS
+.TP
+\fB\-\-dry\-run\fR
+Print what would run as JSON instead of running it
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version
+.TP
+[\fIURL\fR]
+URL or file to open. Without it, pick a browser to start
+.SH SUBCOMMANDS
+.TP
+urlmenu\-list(1)
+List detected targets with their ids and commands
+.TP
+urlmenu\-explain(1)
+Show how a URL is cleaned, which rule or picker handles it, and its history; a fragment such as `github` lists every matching site
+.TP
+urlmenu\-items(1)
+Print the menu as JSON, for an external picker
+.TP
+urlmenu\-open(1)
+Open a URL (or nothing) with a target id from `list` or `items`
+.TP
+urlmenu\-copy(1)
+Copy the cleaned URL to the clipboard
+.TP
+urlmenu\-forget(1)
+Reset the picks remembered for a site, or for every site
+.TP
+urlmenu\-setup(1)
+Register urlmenu as the default handler for http, https and HTML, and install shell completion. Without a part flag, does both
+.SH VERSION
+v0.1.0

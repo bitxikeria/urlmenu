@@ -1,0 +1,22 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH urlmenu-forget 1  "forget " 
+.SH NAME
+urlmenu\-forget \- Reset the picks remembered for a site, or for every site
+.SH SYNOPSIS
+\fBurlmenu forget\fR [\fB\-\-all\fR] [\fB\-\-dry\-run\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fISITE\fR] 
+.SH DESCRIPTION
+Reset the picks remembered for a site, or for every site
+.SH OPTIONS
+.TP
+\fB\-\-all\fR
+
+.TP
+\fB\-\-dry\-run\fR
+Print what would run as JSON instead of running it
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+[\fISITE\fR]
+URL or host, e.g. `github.com`

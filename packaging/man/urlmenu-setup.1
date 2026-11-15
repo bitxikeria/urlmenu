@@ -1,0 +1,28 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH urlmenu-setup 1  "setup " 
+.SH NAME
+urlmenu\-setup \- Register urlmenu as the default handler for http, https and HTML, and install shell completion. Without a part flag, does both
+.SH SYNOPSIS
+\fBurlmenu setup\fR [\fB\-\-dry\-run\fR] [\fB\-\-handler\fR] [\fB\-\-completion\fR] [\fB\-\-undo\fR] [\fB\-\-print\fR] [\fB\-h\fR|\fB\-\-help\fR] 
+.SH DESCRIPTION
+Register urlmenu as the default handler for http, https and HTML, and install shell completion. Without a part flag, does both
+.SH OPTIONS
+.TP
+\fB\-\-dry\-run\fR
+Print what would run as JSON instead of running it
+.TP
+\fB\-\-handler\fR
+Only the default handler: desktop entry and `xdg\-mime default`
+.TP
+\fB\-\-completion\fR
+Only the completion scripts, for each of fish, bash and zsh in `PATH`
+.TP
+\fB\-\-undo\fR
+Remove what setup wrote and restore the previous default handler
+.TP
+\fB\-\-print\fR
+Print the files and commands instead of applying them
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help

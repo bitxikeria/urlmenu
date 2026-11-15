@@ -1,0 +1,19 @@
+.ie \n(.g .ds Aq \(aq
+.el .ds Aq '
+.TH urlmenu-explain 1  "explain " 
+.SH NAME
+urlmenu\-explain \- Show how a URL is cleaned, which rule or picker handles it, and its history; a fragment such as `github` lists every matching site
+.SH SYNOPSIS
+\fBurlmenu explain\fR [\fB\-\-dry\-run\fR] [\fB\-h\fR|\fB\-\-help\fR] <\fIURL\fR> 
+.SH DESCRIPTION
+Show how a URL is cleaned, which rule or picker handles it, and its history; a fragment such as `github` lists every matching site
+.SH OPTIONS
+.TP
+\fB\-\-dry\-run\fR
+Print what would run as JSON instead of running it
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help
+.TP
+<\fIURL\fR>
+

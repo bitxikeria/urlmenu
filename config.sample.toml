@@ -1,0 +1,66 @@
+# urlmenu configuration: ~/.config/urlmenu/config.toml (or $URLMENU_CONFIG).
+# Every key is optional; the values below are the defaults.
+
+# Preset (rofi, fuzzel, wofi, tofi, walker, bemenu, dmenu) or { command = [...] } for any
+# dmenu-compatible launcher, where {url} is replaced by the link.
+# Unset: the first preset found in PATH, in that order.
+# launcher = "rofi"
+# launcher = { command = ["bemenu", "-i", "-p", "{url}"] }
+
+# Appended to the launcher command, e.g. ["-theme", "theme.rasi"].
+launcher_args = []
+
+# Opening in a private window. rofi and fuzzel bind it to a shortcut
+# ([shortcuts] open_in_private_window). Launchers without custom keys
+# (wofi, dmenu, commands) list a "[Private] <browser>" row for each browser
+# instead; false leaves those rows out.
+private_entries = true
+
+# Browser icons are shown in rofi and fuzzel; true leaves them out.
+# Other launchers never show icons.
+hide_icons = false
+
+# Offer to copy the link: a shortcut in rofi and fuzzel, a row elsewhere.
+clipboard_entry = true
+
+# Target or browser id suggested when a site has no history.
+# favorite_browser = "firefox"
+
+# Suggest the most frequent and recent pick for each site first.
+remember = true
+
+# Strip tracking parameters and unwrap redirect links.
+clean = true
+
+# More query keys to strip; a trailing * matches a prefix, e.g. ["si", "pk_*"].
+extra_params = []
+
+# Desktop entry ids left out of detection, e.g. ["chromium"].
+excluded_browsers = []
+
+# Keys in rofi syntax, for rofi and fuzzel. Pick keys the launcher leaves free.
+[shortcuts]
+open_in_private_window = "Alt+Return"
+copy_link = "Control+Shift+c"
+show_hints = true   # reminder of these keys under the URL
+
+# Override a detected browser, or add one (then exec is required).
+# [[browser]]
+# id = "qutebrowser"
+# name = "qutebrowser"
+# icon = "qutebrowser"
+# exec = "qutebrowser %u"
+# private_exec = "qutebrowser --target private-window %u"
+
+# The first matching rule opens its target directly, without the picker.
+# host is a glob on the host, url a regex on the cleaned link; set one or both.
+# Without profile, the browser's first profile is used.
+# [[rule]]
+# host = "*.example.com"
+# browser = "firefox"
+# profile = "work"
+# private = false
+#
+# [[rule]]
+# url = '^https://meet\.google\.com/'
+# browser = "chromium"

@@ -1,0 +1,3 @@
+#compdef urlmenu
+source <(COMPLETE=zsh urlmenu)
+_clap_dynamic_completer_urlmenu "$@"
