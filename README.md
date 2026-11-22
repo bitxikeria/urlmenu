@@ -12,6 +12,8 @@ A link handler for Linux that asks which browser to open each link in, using you
 
 ## Install
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/urlmenu.svg)](https://repology.org/project/urlmenu/versions)
+
 ```sh
 cargo install --path .
 urlmenu setup                # default handler and shell completion
