@@ -1,6 +1,6 @@
 [package]
 name = "urlmenu"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "Pick a browser for each link through your dmenu-style launcher"
 readme = "README.md"
