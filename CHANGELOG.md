@@ -4,6 +4,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); ver
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-22
+
 ### Added
 
 - Link handler that asks which browser, profile or private window opens each link, through rofi, fuzzel, wofi, tofi, walker, bemenu or dmenu.
