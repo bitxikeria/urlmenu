@@ -22,6 +22,8 @@ urlmenu setup --print        # show what it would do
 urlmenu --help               # every command; `urlmenu <command> --help` for its options
 ```
 
+With Nix, `nix run github:bitxikeria/urlmenu` runs it; the flake also exports `overlays.default`. On NixOS, set the handler with `xdg.mime.defaultApplications` for `x-scheme-handler/http` and `x-scheme-handler/https` to `urlmenu.desktop`.
+
 ## Usage
 
 ```sh

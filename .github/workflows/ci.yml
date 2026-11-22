@@ -65,3 +65,11 @@ jobs:
           sudo apt-get install -y rpm
           rpm -qip dist/urlmenu-*.rpm
           rpm -qlp dist/urlmenu-*.rpm | grep -x /usr/bin/urlmenu
+
+  nix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: cachix/install-nix-action@v31
+      - run: nix build -L
+      - run: ./result/bin/urlmenu --version
