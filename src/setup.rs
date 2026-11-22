@@ -17,7 +17,7 @@ fn desktop_entry(exe: &str) -> String {
          Name=urlmenu\n\
          Comment=Pick a browser for each link\n\
          Exec={} %u\n\
-         Icon=web-browser\n\
+         Icon=urlmenu\n\
          Terminal=false\n\
          Categories=Network;WebBrowser;\n\
          MimeType={};\n",
@@ -131,6 +131,14 @@ fn previous_file(paths: &Paths) -> PathBuf {
 
 const DESKTOP_ID: &str = "urlmenu.desktop";
 
+const ICON: &str = include_str!("../packaging/urlmenu.svg");
+
+fn icon_file(paths: &Paths) -> PathBuf {
+    paths
+        .data_home
+        .join("icons/hicolor/scalable/apps/urlmenu.svg")
+}
+
 fn write(file: &Path, content: &str) -> Result<(), String> {
     std::fs::create_dir_all(file.parent().ok_or("bad path")?)
         .map_err(|e| format!("{}: {e}", file.display()))?;
@@ -227,6 +235,7 @@ fn setup_handler(paths: &Paths, print: bool) -> Result<(), String> {
     if print {
         if let Some((file, entry)) = &user_entry {
             println!("# {}\n{entry}", file.display());
+            println!("# {}\n<svg …>\n", icon_file(paths).display());
         }
         return xdg_mime(&args, true);
     }
@@ -236,6 +245,7 @@ fn setup_handler(paths: &Paths, print: bool) -> Result<(), String> {
     write(&previous, &text)?;
     if let Some((file, entry)) = &user_entry {
         write(file, entry)?;
+        write(&icon_file(paths), ICON)?;
     }
     xdg_mime(&args, false)?;
     println!(
@@ -261,6 +271,7 @@ fn undo_handler(paths: &Paths, print: bool) -> Result<(), String> {
         );
     }
     remove(&desktop_file(paths), print)?;
+    remove(&icon_file(paths), print)?;
     remove(&previous, print)
 }
 

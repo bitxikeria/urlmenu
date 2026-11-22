@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#231a24"/><stop offset="1" stop-color="#141016"/></linearGradient>
+<linearGradient id="t" gradientUnits="userSpaceOnUse" x1="64" y1="102" x2="64" y2="40"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f43f5e"/></linearGradient>
+</defs>
+<rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+<g fill="none" stroke-linecap="round" stroke-width="3">
+<path d="M64 102 C57.6 76.0 18.4 104.4 21.2 86.4" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C57.9 76.0 34.2 94.8 23.1 76.8" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C58.5 76.0 24.0 85.4 27.3 67.4" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C59.5 76.0 43.7 76.7 33.7 58.7" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C60.7 76.0 37.3 69.3 42.1 51.3" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C62.3 76.0 60.5 63.6 52.4 45.6" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C64.0 76.0 57.0 60.0 64.0 42.0" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C65.7 76.0 81.5 63.6 75.6 45.6" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C68.5 76.0 98.3 76.7 94.3 58.7" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C69.5 76.0 90.0 85.4 100.7 67.4" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C70.1 76.0 107.8 94.8 104.9 76.8" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C70.4 76.0 95.6 104.4 106.8 86.4" stroke="url(#t)" stroke-opacity="0.28"/>
+<path d="M64 102 C67.3 76.0 76.7 69.3 85.9 51.3" stroke="url(#t)" stroke-width="4"/>
+</g>
+<circle cx="21.2" cy="86.4" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="23.1" cy="76.8" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="27.3" cy="67.4" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="33.7" cy="58.7" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="42.1" cy="51.3" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="52.4" cy="45.6" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="64.0" cy="42.0" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="75.6" cy="45.6" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="94.3" cy="58.7" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="100.7" cy="67.4" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="104.9" cy="76.8" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="106.8" cy="86.4" r="2.6" fill="url(#t)" fill-opacity="0.35"/>
+<circle cx="85.9" cy="51.3" r="5" fill="#f43f5e"/>
+<circle cx="64" cy="102" r="6" fill="#fbbf24"/>
+</svg>

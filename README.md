@@ -1,3 +1,5 @@
+<p align="center"><img src="packaging/urlmenu.svg" width="128" alt=""></p>
+
 # urlmenu
 
 A link handler for Linux that asks which browser to open each link in, using your own launcher (rofi, fuzzel, wofi, tofi, walker, bemenu, dmenu…) with its theme and keybindings. It draws no window of its own.
@@ -160,6 +162,7 @@ Build with `cargo build --release --locked` (Rust 1.88 or later). `cargo test` n
 |---|---|
 | `target/release/urlmenu` | `/usr/bin/urlmenu` |
 | `packaging/urlmenu.desktop` | `/usr/share/applications/urlmenu.desktop` |
+| `packaging/urlmenu.svg` | `/usr/share/icons/hicolor/scalable/apps/urlmenu.svg` |
 | `packaging/man/*.1` | `/usr/share/man/man1/` |
 | `packaging/completions/urlmenu.bash` | `/usr/share/bash-completion/completions/urlmenu` |
 | `packaging/completions/urlmenu.fish` | `/usr/share/fish/vendor_completions.d/urlmenu.fish` |

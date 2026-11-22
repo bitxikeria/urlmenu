@@ -23,6 +23,7 @@ fi
 share=$dest$prefix/share
 install -Dm755 "$bin" "$dest$prefix/bin/urlmenu"
 install -Dm644 "$root/packaging/urlmenu.desktop" "$share/applications/urlmenu.desktop"
+install -Dm644 "$root/packaging/urlmenu.svg" "$share/icons/hicolor/scalable/apps/urlmenu.svg"
 for page in "$root"/packaging/man/*.1; do
     install -Dm644 "$page" "$share/man/man1/$(basename "$page")"
 done
