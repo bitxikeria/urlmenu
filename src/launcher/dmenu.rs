@@ -106,7 +106,7 @@ impl Dmenu {
             args.extend(keys.args.iter().cloned());
         }
         if let Some(flag) = self.mesg_flag {
-            let mut lines: Vec<String> = menu.url.iter().cloned().collect();
+            let mut lines: Vec<String> = menu.shown_url().into_iter().collect();
             if let Some(keys) = &self.shortcuts {
                 lines.extend(hints(opts.msg, menu, &keys.shortcuts));
             }
@@ -142,11 +142,11 @@ impl Dmenu {
 impl Launcher for Dmenu {
     fn pick(&self, menu: &Menu, opts: Options) -> Result<Choice, String> {
         let (program, args) = self.command.split_first().ok_or("empty launcher command")?;
-        let url = menu.url.as_deref().unwrap_or("");
+        let url = menu.shown_url().unwrap_or_default();
         let rows = self.rows(menu, opts);
         let input: Vec<String> = rows.iter().map(|r| self.line(r, opts)).collect();
         let mut child = Command::new(program)
-            .args(args.iter().map(|a| a.replace("{url}", url)))
+            .args(args.iter().map(|a| a.replace("{url}", &url)))
             .args(self.extra_args(&rows, menu, opts))
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())

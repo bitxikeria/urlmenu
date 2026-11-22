@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); ver
 ### Added
 
 - Nix flake with a package and an overlay.
+- Several links in one call: `urlmenu <url>…`, `open --target <id> <url>…` and `copy <url>…`. Links a rule handles open directly, the others share one pick. The desktop entry takes a list (`%U`), so a file manager passes a selection at once.
 
 ## [0.1.1] - 2026-11-22
 

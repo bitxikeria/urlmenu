@@ -30,6 +30,7 @@ With Nix, `nix run github:bitxikeria/urlmenu` runs it; the flake also exports `o
 
 ```sh
 urlmenu https://example.com   # rule match, or picker
+urlmenu <url> <url>…          # each rule match opens directly; one pick opens the rest
 urlmenu                       # pick a browser to start, without a URL
 urlmenu list                  # targets with their ids and commands
 urlmenu explain <url>         # cleaned URL, the rule that handles it, the site history
@@ -71,7 +72,7 @@ The suggestion is:
 1. the target with the best score for this site (host without `www.`): each pick from the picker adds 1 to its rank, weighted by the age of the last pick (×4 under an hour, ×2 under a day, ×0.5 under a week, ×0.25 beyond), like zoxide;
 2. otherwise `favorite_browser`.
 
-Rules still open directly, without the picker. Picks are kept in `$XDG_STATE_HOME/urlmenu/history.json` (500 sites at most). Above a total rank of 20 per site, ranks age by 10% and the faded ones drop. A private pick suggests the same browser and profile in both views.
+Rules still open directly, without the picker. With several links, the picker shows the first one and the count of the others, suggests from the first one's site, and records the pick for each site. Picks are kept in `$XDG_STATE_HOME/urlmenu/history.json` (500 sites at most). Above a total rank of 20 per site, ranks age by 10% and the faded ones drop. A private pick suggests the same browser and profile in both views.
 
 ## External pickers
 
@@ -79,8 +80,8 @@ Any interface can draw the menu and hand the choice back:
 
 ```sh
 urlmenu items <url>                     # menu as JSON
-urlmenu open --target <id> [<url>]      # open with a target id
-urlmenu copy <url>                      # copy the cleaned URL
+urlmenu open --target <id> [<url>…]     # open with a target id
+urlmenu copy <url>…                     # copy the cleaned URLs, one per line
 ```
 
 `items` prints:

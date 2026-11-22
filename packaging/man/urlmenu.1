@@ -4,7 +4,7 @@
 .SH NAME
 urlmenu \- Pick a browser for each link, through your launcher
 .SH SYNOPSIS
-\fBurlmenu\fR [\fB\-\-dry\-run\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIURL\fR] [\fIsubcommands\fR]
+\fBurlmenu\fR [\fB\-\-dry\-run\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIURLS\fR] [\fIsubcommands\fR]
 .SH DESCRIPTION
 Pick a browser for each link, through your launcher
 .SH OPTIONS
@@ -18,8 +18,8 @@ Print help
 \fB\-V\fR, \fB\-\-version\fR
 Print version
 .TP
-[\fIURL\fR]
-URL or file to open. Without it, pick a browser to start
+[\fIURLS\fR]
+URLs or files to open, with one pick for those no rule handles. Without any, pick a browser to start
 .SH SUBCOMMANDS
 .TP
 urlmenu\-list(1)
@@ -32,10 +32,10 @@ urlmenu\-items(1)
 Print the menu as JSON, for an external picker
 .TP
 urlmenu\-open(1)
-Open a URL (or nothing) with a target id from `list` or `items`
+Open URLs (or nothing) with a target id from `list` or `items`
 .TP
 urlmenu\-copy(1)
-Copy the cleaned URL to the clipboard
+Copy the cleaned URLs to the clipboard, one per line
 .TP
 urlmenu\-forget(1)
 Reset the picks remembered for a site, or for every site

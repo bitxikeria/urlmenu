@@ -11,6 +11,8 @@ use crate::config::Shortcuts;
 use crate::menu::{Choice, Item, Menu};
 
 pub const URL_ENV: &str = "URLMENU_URL";
+/// Number of links after `$URLMENU_URL`, shown as `(+n)`.
+pub const MORE_ENV: &str = "URLMENU_MORE";
 pub const RESULT_ENV: &str = "URLMENU_RESULT";
 const MODE: &str = "browsers";
 /// rofi `ROFI_RETV` for an accepted entry; custom keys use the exit codes.
@@ -53,8 +55,8 @@ impl Launcher for Rofi {
             .env(RESULT_ENV, &result)
             .stdin(Stdio::null());
         match &menu.url {
-            Some(url) => cmd.env(URL_ENV, url),
-            None => cmd.env_remove(URL_ENV),
+            Some(url) => cmd.env(URL_ENV, url).env(MORE_ENV, menu.more.to_string()),
+            None => cmd.env_remove(URL_ENV).env_remove(MORE_ENV),
         };
         cmd.status().map_err(|e| format!("cannot run rofi: {e}"))?;
 
@@ -114,7 +116,7 @@ pub fn script(
 
 /// URL, then the shortcut reminder dimmed. Pango markup.
 fn message(menu: &Menu, opts: Options, shortcuts: &Shortcuts) -> String {
-    let mut lines: Vec<String> = menu.url.iter().map(|u| escape_markup(u)).collect();
+    let mut lines: Vec<String> = menu.shown_url().iter().map(|u| escape_markup(u)).collect();
     lines.extend(
         hints(opts.msg, menu, shortcuts)
             .map(|h| format!("<span alpha=\"50%\">{}</span>", escape_markup(&h))),

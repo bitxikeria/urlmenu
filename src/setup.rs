@@ -16,7 +16,7 @@ fn desktop_entry(exe: &str) -> String {
          Type=Application\n\
          Name=urlmenu\n\
          Comment=Pick a browser for each link\n\
-         Exec={} %u\n\
+         Exec={} %U\n\
          Icon=urlmenu\n\
          Terminal=false\n\
          Categories=Network;WebBrowser;\n\
@@ -331,11 +331,11 @@ mod tests {
 
     #[test]
     fn entry_round_trips_through_parser() {
-        for exe in ["/home/u/.cargo/bin/urlmenu", "/home/u/My Bin/link$pick"] {
+        for exe in ["/home/u/.cargo/bin/urlmenu", "/home/u/My Bin/url$menu"] {
             let b = parse_browser("x", &desktop_entry(exe), &[])
                 .unwrap()
                 .unwrap();
-            assert_eq!(b.exec, [exe, "%u"]);
+            assert_eq!(b.exec, [exe, "%U"]);
         }
     }
 
@@ -479,6 +479,6 @@ mod tests {
 
     #[test]
     fn plain_path_is_unquoted() {
-        assert!(desktop_entry("/usr/bin/urlmenu").contains("\nExec=/usr/bin/urlmenu %u\n"));
+        assert!(desktop_entry("/usr/bin/urlmenu").contains("\nExec=/usr/bin/urlmenu %U\n"));
     }
 }

@@ -18,7 +18,22 @@ pub struct Target {
 impl Target {
     /// Final argv. The URL is always a single argument.
     pub fn command(&self, url: Option<&str>) -> Vec<String> {
-        let mut argv = exec::expand(&self.template, url);
+        self.argv(url.as_slice())
+    }
+
+    /// Commands opening every URL: one command when the `Exec` template takes
+    /// a list, one per URL otherwise.
+    pub fn commands(&self, urls: &[String]) -> Vec<Vec<String>> {
+        let urls: Vec<&str> = urls.iter().map(String::as_str).collect();
+        if urls.len() <= 1 || exec::takes_list(&self.template) {
+            vec![self.argv(&urls)]
+        } else {
+            urls.iter().map(|u| self.argv(&[u])).collect()
+        }
+    }
+
+    fn argv(&self, urls: &[&str]) -> Vec<String> {
+        let mut argv = exec::expand(&self.template, urls);
         if let Some(profile) = &self.profile {
             argv.splice(1..1, profile.args.iter().cloned());
         }
@@ -214,5 +229,28 @@ mod tests {
             s(&["chromium", "--profile-directory=Default"])
         );
         assert!(t[1].matches_profile("Chill") && t[1].matches_profile("Profile 1"));
+    }
+
+    #[test]
+    fn commands_for_several_urls() {
+        let t = build(&browsers(), &crate::locale::EN);
+        let urls = s(&["https://a.com", "https://b.com"]);
+        assert_eq!(
+            t[0].commands(&urls),
+            [s(&[
+                "chromium",
+                "--profile-directory=Default",
+                "https://a.com",
+                "https://b.com"
+            ])]
+        );
+        assert_eq!(
+            t[2].commands(&urls),
+            [
+                s(&["qutebrowser", "https://a.com"]),
+                s(&["qutebrowser", "https://b.com"])
+            ]
+        );
+        assert_eq!(t[2].commands(&[]), [s(&["qutebrowser"])]);
     }
 }

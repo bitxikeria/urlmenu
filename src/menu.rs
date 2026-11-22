@@ -20,7 +20,10 @@ pub struct Variant {
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Menu {
+    /// First URL; the picked target opens it with the `more` that follow.
     pub url: Option<String>,
+    #[serde(skip)]
+    pub more: usize,
     /// Normal targets; each carries its private variant.
     pub items: Vec<Item>,
     /// Offer "Copy to clipboard".
@@ -65,10 +68,19 @@ impl Menu {
         let copy = copy && url.is_some();
         Self {
             url,
+            more: 0,
             items,
             copy,
             suggested,
         }
+    }
+
+    /// URL as shown in the launcher: `https://a.com/ (+2)` for three links.
+    pub fn shown_url(&self) -> Option<String> {
+        self.url.as_ref().map(|u| match self.more {
+            0 => u.clone(),
+            n => format!("{u} (+{n})"),
+        })
     }
 
     pub fn has_private(&self) -> bool {
@@ -92,6 +104,7 @@ pub mod tests {
     pub fn sample() -> Menu {
         Menu {
             url: Some("https://e.com/?a=1&b=2".into()),
+            more: 0,
             items: vec![
                 Item {
                     id: "ff".into(),
@@ -151,5 +164,16 @@ pub mod tests {
         assert!(m.has_private());
         assert_eq!(m.private_of("ff"), "ff+private");
         assert_eq!(m.private_of("qute"), "qute");
+    }
+
+    #[test]
+    fn shown_url_counts_the_other_links() {
+        let mut m = sample();
+        assert_eq!(m.shown_url().as_deref(), Some("https://e.com/?a=1&b=2"));
+        m.more = 2;
+        assert_eq!(
+            m.shown_url().as_deref(),
+            Some("https://e.com/?a=1&b=2 (+2)")
+        );
     }
 }

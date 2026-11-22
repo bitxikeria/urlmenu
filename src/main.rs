@@ -35,8 +35,9 @@ struct Cli {
     dry_run: bool,
     #[command(subcommand)]
     command: Option<Cmd>,
-    /// URL or file to open. Without it, pick a browser to start.
-    url: Option<String>,
+    /// URLs or files to open, with one pick for those no rule handles.
+    /// Without any, pick a browser to start.
+    urls: Vec<String>,
 }
 
 #[derive(Subcommand)]
@@ -51,14 +52,17 @@ enum Cmd {
     },
     /// Print the menu as JSON, for an external picker.
     Items { url: Option<String> },
-    /// Open a URL (or nothing) with a target id from `list` or `items`.
+    /// Open URLs (or nothing) with a target id from `list` or `items`.
     Open {
         #[arg(long, add = ArgValueCandidates::new(complete_targets))]
         target: String,
-        url: Option<String>,
+        urls: Vec<String>,
     },
-    /// Copy the cleaned URL to the clipboard.
-    Copy { url: String },
+    /// Copy the cleaned URLs to the clipboard, one per line.
+    Copy {
+        #[arg(required = true)]
+        urls: Vec<String>,
+    },
     /// Reset the picks remembered for a site, or for every site.
     Forget {
         /// URL or host, e.g. `github.com`.
@@ -133,12 +137,18 @@ impl Ctx {
         Ok(url)
     }
 
+    fn urls(&self, inputs: &[String]) -> Result<Vec<String>, String> {
+        inputs.iter().map(|i| self.url(i)).collect()
+    }
+
     fn options(&self) -> Options {
         Options::new(&self.cfg, self.msg)
     }
 
-    /// Ranked: best-scored pick for this site, then the favorite browser.
-    fn menu(&self, url: Option<String>) -> Menu {
+    /// Ranked: best-scored pick for the site of the first URL, then the
+    /// favorite browser.
+    fn menu(&self, urls: &[String]) -> Menu {
+        let url = urls.first().cloned();
         let mut preferred = Vec::new();
         if self.cfg.remember {
             let key = history::key(url.as_deref());
@@ -146,7 +156,9 @@ impl Ctx {
             preferred.extend(history.best(&key, history::now()).map(String::from));
         }
         preferred.extend(self.favorite_target());
-        Menu::build(&self.targets, url, self.cfg.clipboard_entry, &preferred)
+        let mut menu = Menu::build(&self.targets, url, self.cfg.clipboard_entry, &preferred);
+        menu.more = urls.len().saturating_sub(1);
+        menu
     }
 
     /// `favorite_browser` as a target id, or the first normal target of that browser.
@@ -159,13 +171,23 @@ impl Ctx {
             .map(Target::id)
     }
 
-    fn remember(&self, url: Option<&str>, id: &str) {
+    /// Records the pick once for each site among `urls`.
+    fn remember(&self, urls: &[String], id: &str) {
         if !self.cfg.remember {
             return;
         }
         let path = history::path(&self.paths);
         let mut history = history::History::load(&path);
-        history.record(history::key(url), id, history::now());
+        let mut keys: Vec<String> = urls.iter().map(|u| history::key(Some(u))).collect();
+        if keys.is_empty() {
+            keys.push(history::key(None));
+        }
+        keys.sort();
+        keys.dedup();
+        let now = history::now();
+        for key in keys {
+            history.record(key, id, now);
+        }
         if let Err(e) = history.save(&path) {
             eprintln!("urlmenu: {e}");
         }
@@ -189,9 +211,16 @@ impl Ctx {
         }))
     }
 
-    fn open_target(&self, id: &str, url: Option<&str>, dry_run: bool) -> Result<(), String> {
+    fn open_target(&self, id: &str, urls: &[String], dry_run: bool) -> Result<(), String> {
         let i = target::find(&self.targets, id).ok_or_else(|| format!("unknown target {id:?}"))?;
-        launch::open(&self.targets[i].command(url), dry_run)
+        self.open_index(i, urls, dry_run)
+    }
+
+    fn open_index(&self, i: usize, urls: &[String], dry_run: bool) -> Result<(), String> {
+        self.targets[i]
+            .commands(urls)
+            .iter()
+            .try_for_each(|argv| launch::open(argv, dry_run))
     }
 }
 
@@ -236,11 +265,8 @@ fn run(cli: Cli) -> Result<(), String> {
         Some(Cmd::List) => list(&ctx),
         Some(Cmd::Explain { url }) => explain(&ctx, &url),
         Some(Cmd::Items { url }) => items(&ctx, url.as_deref()),
-        Some(Cmd::Open { target, url }) => {
-            let url = url.as_deref().map(|u| ctx.url(u)).transpose()?;
-            ctx.open_target(&target, url.as_deref(), dry_run)
-        }
-        Some(Cmd::Copy { url }) => launch::copy(&ctx.url(&url)?, dry_run),
+        Some(Cmd::Open { target, urls }) => ctx.open_target(&target, &ctx.urls(&urls)?, dry_run),
+        Some(Cmd::Copy { urls }) => launch::copy(&ctx.urls(&urls)?.join("\n"), dry_run),
         Some(Cmd::Forget { site, all }) => forget(&ctx, site.as_deref(), all),
         Some(Cmd::Setup {
             handler,
@@ -257,38 +283,49 @@ fn run(cli: Cli) -> Result<(), String> {
             print,
         ),
         Some(Cmd::Rofi { .. }) => rofi_script(&ctx),
-        None => open(&ctx, cli.url.as_deref(), dry_run),
+        None => open(&ctx, &cli.urls, dry_run),
     }
 }
 
-fn open(ctx: &Ctx, input: Option<&str>, dry_run: bool) -> Result<(), String> {
-    let url = input.map(|i| ctx.url(i)).transpose()?;
-    if let Some(u) = url.as_deref()
-        && let Some(i) = ctx.rule_target(u)?
-    {
-        return launch::open(&ctx.targets[i].command(Some(u)), dry_run);
+/// Each URL a rule handles opens directly; the others share one pick.
+fn open(ctx: &Ctx, inputs: &[String], dry_run: bool) -> Result<(), String> {
+    let mut picked = Vec::new();
+    for url in ctx.urls(inputs)? {
+        match ctx.rule_target(&url)? {
+            Some(i) => ctx.open_index(i, std::slice::from_ref(&url), dry_run)?,
+            None => picked.push(url),
+        }
+    }
+    if !inputs.is_empty() && picked.is_empty() {
+        return Ok(());
     }
     if ctx.targets.is_empty() {
         return Err("no browser detected".into());
     }
-    let menu = ctx.menu(url.clone());
+    let menu = ctx.menu(&picked);
     let launcher = launcher::from_config(&ctx.cfg, &ctx.paths, ctx.msg)?;
     match launcher.pick(&menu, ctx.options())? {
         Choice::Open(id) => {
-            ctx.open_target(&id, url.as_deref(), dry_run)?;
+            ctx.open_target(&id, &picked, dry_run)?;
             if !dry_run {
-                ctx.remember(url.as_deref(), &id);
+                ctx.remember(&picked, &id);
             }
             Ok(())
         }
-        Choice::Copy => launch::copy(url.as_deref().unwrap_or(""), dry_run),
+        Choice::Copy => launch::copy(&picked.join("\n"), dry_run),
         Choice::Cancel => Ok(()),
     }
 }
 
 fn rofi_script(ctx: &Ctx) -> Result<(), String> {
     let url = std::env::var(rofi::URL_ENV).ok().filter(|u| !u.is_empty());
-    let menu = ctx.menu(url);
+    let mut menu = ctx.menu(url.as_slice());
+    if menu.url.is_some() {
+        menu.more = std::env::var(rofi::MORE_ENV)
+            .ok()
+            .and_then(|n| n.parse().ok())
+            .unwrap_or(0);
+    }
     let retv = std::env::var("ROFI_RETV")
         .ok()
         .and_then(|v| v.parse().ok())
@@ -328,7 +365,7 @@ fn items(ctx: &Ctx, input: Option<&str>) -> Result<(), String> {
         Some(u) => ctx.rule_target(u)?.map(|i| ctx.targets[i].id()),
         None => None,
     };
-    let menu = ctx.menu(url);
+    let menu = ctx.menu(url.as_slice());
     let out = ItemsOutput {
         version: 1,
         rule,

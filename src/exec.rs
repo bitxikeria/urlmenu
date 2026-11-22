@@ -73,17 +73,27 @@ pub fn split(exec: &str) -> Result<Vec<String>, String> {
     Ok(args)
 }
 
-/// Builds the final argv. `%u %U %f %F` become the URL; other field codes are
-/// dropped. When the template carries no URL field code, the URL is appended,
-/// which covers actions such as `Exec=chromium --incognito`.
-pub fn expand(template: &[String], url: Option<&str>) -> Vec<String> {
-    let mut argv = Vec::with_capacity(template.len() + 1);
+/// Builds the final argv. `%U` and `%F` become every URL, `%u` and `%f` the
+/// first one; other field codes are dropped. When the template carries no URL
+/// field code, the URLs are appended, which covers actions such as
+/// `Exec=chromium --incognito`.
+pub fn expand(template: &[String], urls: &[&str]) -> Vec<String> {
+    let mut argv = Vec::with_capacity(template.len() + urls.len());
     let mut url_placed = false;
+    let first = urls.first().copied();
     for token in template {
-        if matches!(token.as_str(), "%u" | "%U" | "%f" | "%F") {
-            url_placed = true;
-            argv.extend(url.map(str::to_string));
-            continue;
+        match token.as_str() {
+            "%U" | "%F" => {
+                url_placed = true;
+                argv.extend(urls.iter().map(|u| u.to_string()));
+                continue;
+            }
+            "%u" | "%f" => {
+                url_placed = true;
+                argv.extend(first.map(str::to_string));
+                continue;
+            }
+            _ => {}
         }
         let mut out = String::with_capacity(token.len());
         let mut chars = token.chars();
@@ -96,7 +106,7 @@ pub fn expand(template: &[String], url: Option<&str>) -> Vec<String> {
                 Some('%') => out.push('%'),
                 Some('u' | 'U' | 'f' | 'F') => {
                     url_placed = true;
-                    out.push_str(url.unwrap_or(""));
+                    out.push_str(first.unwrap_or(""));
                 }
                 _ => {}
             }
@@ -105,10 +115,26 @@ pub fn expand(template: &[String], url: Option<&str>) -> Vec<String> {
             argv.push(out);
         }
     }
-    if !url_placed && let Some(url) = url {
-        argv.push(url.to_string());
+    if !url_placed {
+        argv.extend(urls.iter().map(|u| u.to_string()));
     }
     argv
+}
+
+/// The template accepts several URLs in one command: a standalone `%U` or
+/// `%F`, or no URL field code at all.
+pub fn takes_list(template: &[String]) -> bool {
+    template.iter().any(|t| t == "%U" || t == "%F") || !template.iter().any(|t| has_url_code(t))
+}
+
+fn has_url_code(token: &str) -> bool {
+    let mut chars = token.chars();
+    while let Some(c) = chars.next() {
+        if c == '%' && matches!(chars.next(), Some('u' | 'U' | 'f' | 'F')) {
+            return true;
+        }
+    }
+    false
 }
 
 #[cfg(test)]
@@ -145,10 +171,11 @@ mod tests {
 
     #[test]
     fn expand_cases() {
-        let url = Some("https://e.com/?a=1&b=2");
-        let cases: &[(&[&str], Option<&str>, &[&str])] = &[
+        let url: &[&str] = &["https://e.com/?a=1&b=2"];
+        let none: &[&str] = &[];
+        let cases: &[(&[&str], &[&str], &[&str])] = &[
             (&["ff", "%u"], url, &["ff", "https://e.com/?a=1&b=2"]),
-            (&["ff", "%u"], None, &["ff"]),
+            (&["ff", "%u"], none, &["ff"]),
             (
                 &["chromium", "--incognito"],
                 url,
@@ -156,7 +183,7 @@ mod tests {
             ),
             (
                 &["chromium", "--incognito"],
-                None,
+                none,
                 &["chromium", "--incognito"],
             ),
             (
@@ -169,10 +196,17 @@ mod tests {
                 url,
                 &["app", "--url=https://e.com/?a=1&b=2", "100%"],
             ),
+            (&["ch", "%U"], &["a", "b"], &["ch", "a", "b"]),
+            (&["ff", "%u"], &["a", "b"], &["ff", "a"]),
+            (
+                &["ch", "--incognito"],
+                &["a", "b"],
+                &["ch", "--incognito", "a", "b"],
+            ),
         ];
         for (template, url, expected) in cases {
             assert_eq!(
-                expand(&s(template), *url),
+                expand(&s(template), url),
                 s(expected),
                 "template: {template:?}"
             );
@@ -182,6 +216,14 @@ mod tests {
     #[test]
     fn hostile_url_stays_one_argument() {
         let url = r#"https://e.com/"$(touch /tmp/pwn)"; rm -rf ~"#;
-        assert_eq!(expand(&s(&["ff", "%u"]), Some(url)), s(&["ff", url]));
+        assert_eq!(expand(&s(&["ff", "%u"]), &[url]), s(&["ff", url]));
+    }
+
+    #[test]
+    fn list_templates() {
+        assert!(takes_list(&s(&["ch", "%U"])));
+        assert!(takes_list(&s(&["ch", "--incognito"])));
+        assert!(!takes_list(&s(&["ff", "%u"])));
+        assert!(!takes_list(&s(&["app", "--url=%U"])));
     }
 }

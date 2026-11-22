@@ -2,7 +2,7 @@
 Type=Application
 Name=urlmenu
 Comment=Pick a browser for each link
-Exec=urlmenu %u
+Exec=urlmenu %U
 Icon=urlmenu
 Terminal=false
 Categories=Network;WebBrowser;
