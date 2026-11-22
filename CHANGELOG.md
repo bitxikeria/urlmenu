@@ -7,6 +7,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); ver
 ### Added
 
 - Project icon, installed with the desktop entry.
+- `.deb` and `.rpm` packages for x86_64 and aarch64 in each release.
 
 ## [0.1.0] - 2026-11-22
 

@@ -17,8 +17,12 @@ jobs:
         include:
           - target: x86_64-unknown-linux-musl
             runner: ubuntu-24.04
+            deb_arch: amd64
+            nfpm_arch: x86_64
           - target: aarch64-unknown-linux-musl
             runner: ubuntu-24.04-arm
+            deb_arch: arm64
+            nfpm_arch: arm64
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v5
@@ -39,10 +43,18 @@ jobs:
           cp target/${{ matrix.target }}/release/urlmenu "$name/"
           cp -r packaging config.sample.toml README.md CHANGELOG.md UNLICENSE "$name/"
           tar -czf "$name.tar.gz" "$name"
+      - uses: ./.github/actions/nfpm
+        with:
+          arch: ${{ matrix.nfpm_arch }}
+      - name: .deb and .rpm
+        run: packaging/build-packages.sh target/${{ matrix.target }}/release/urlmenu "${GITHUB_REF_NAME#v}" ${{ matrix.deb_arch }} .
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: urlmenu-*.tar.gz
+          path: |
+            urlmenu-*.tar.gz
+            urlmenu*.deb
+            urlmenu*.rpm
 
   release:
     needs: build
@@ -56,7 +68,7 @@ jobs:
           path: dist
           merge-multiple: true
       - name: Checksums
-        run: cd dist && sha256sum urlmenu-*.tar.gz > SHA256SUMS
+        run: cd dist && sha256sum urlmenu* > SHA256SUMS
       - name: Notes from CHANGELOG.md
         run: |
           awk -v v="${GITHUB_REF_NAME#v}" '

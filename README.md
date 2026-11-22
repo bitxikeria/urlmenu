@@ -169,7 +169,7 @@ Build with `cargo build --release --locked` (Rust 1.88 or later). `cargo test` n
 | `packaging/completions/_urlmenu` | `/usr/share/zsh/site-functions/_urlmenu` |
 | `config.sample.toml` | `/usr/share/doc/urlmenu/config.sample.toml` |
 
-`packaging/install.sh` installs these files; it honors `PREFIX` (default `/usr/local`), `DESTDIR` and `BIN`, and works from the source tree or from a release archive, which ships a static binary for x86_64 and aarch64.
+`packaging/install.sh` installs these files; it honors `PREFIX` (default `/usr/local`), `DESTDIR` and `BIN`, and works from the source tree or from a release archive, which ships a static binary for x86_64 and aarch64. Each release also ships `.deb` and `.rpm` packages, built by `packaging/build-packages.sh` with [nfpm](https://nfpm.goreleaser.com/).
 
 With the desktop entry installed system-wide, `urlmenu setup --handler` only makes it the default handler.
 

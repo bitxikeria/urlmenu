@@ -21,7 +21,7 @@ jobs:
           components: rustfmt, clippy
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets -- -D warnings
-      - run: shellcheck packaging/install.sh
+      - run: shellcheck packaging/*.sh
 
   test:
     strategy:
@@ -40,3 +40,28 @@ jobs:
           PREFIX=/usr DESTDIR="$RUNNER_TEMP/pkg" packaging/install.sh
           test -x "$RUNNER_TEMP/pkg/usr/bin/urlmenu"
           test -f "$RUNNER_TEMP/pkg/usr/share/applications/urlmenu.desktop"
+
+  packages:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: ./.github/actions/nfpm
+        with:
+          arch: x86_64
+      - run: cargo build --release --locked
+      - name: Build
+        run: |
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          packaging/build-packages.sh target/release/urlmenu "$version" amd64 dist
+      - name: Install the .deb
+        run: |
+          sudo apt-get install -y ./dist/urlmenu_*.deb
+          urlmenu --version
+          test -f /usr/share/applications/urlmenu.desktop
+          test -f /usr/share/icons/hicolor/scalable/apps/urlmenu.svg
+      - name: Inspect the .rpm
+        run: |
+          sudo apt-get install -y rpm
+          rpm -qip dist/urlmenu-*.rpm
+          rpm -qlp dist/urlmenu-*.rpm | grep -x /usr/bin/urlmenu
