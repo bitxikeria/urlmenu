@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: shellcheck packaging/install.sh
+
+  test:
+    strategy:
+      matrix:
+        toolchain: [stable, "1.88"]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.toolchain }}
+      - run: cargo test --locked
+      - name: install.sh
+        run: |
+          cargo build --release --locked
+          PREFIX=/usr DESTDIR="$RUNNER_TEMP/pkg" packaging/install.sh
+          test -x "$RUNNER_TEMP/pkg/usr/bin/urlmenu"
+          test -f "$RUNNER_TEMP/pkg/usr/share/applications/urlmenu.desktop"

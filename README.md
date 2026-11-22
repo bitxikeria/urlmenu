@@ -166,6 +166,8 @@ Build with `cargo build --release --locked` (Rust 1.88 or later). `cargo test` n
 | `packaging/completions/_urlmenu` | `/usr/share/zsh/site-functions/_urlmenu` |
 | `config.sample.toml` | `/usr/share/doc/urlmenu/config.sample.toml` |
 
+`packaging/install.sh` installs these files; it honors `PREFIX` (default `/usr/local`), `DESTDIR` and `BIN`, and works from the source tree or from a release archive, which ships a static binary for x86_64 and aarch64.
+
 With the desktop entry installed system-wide, `urlmenu setup --handler` only makes it the default handler.
 
 Runtime dependencies: `xdg-utils`, `wl-clipboard` (Wayland) or `xclip` (X11), and one supported launcher.
